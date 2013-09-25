@@ -33,3 +33,10 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+README
+cacm.all
+cite.info
+common_words
+qrels.text
+query.text
