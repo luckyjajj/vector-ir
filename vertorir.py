@@ -5,6 +5,8 @@ import getopt
 class FileParser:
 	def __init__(self):
 		#set file path and open file
+
+		
 		pass
 	def parseFile(self):
 		#Reads file line by line and calls other methods for each line event
