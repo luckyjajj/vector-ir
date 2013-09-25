@@ -3,11 +3,8 @@ import os
 import getopt
 
 class FileParser:
-	def __init__(self):
-		#set file path and open file
-
-		
-		pass
+	def __init__(self, path):
+		self.path = path
 	def parseFile(self):
 		#Reads file line by line and calls other methods for each line event
 		pass
@@ -22,6 +19,25 @@ class Indexer:
 
 
 def main(argv):
-    print 'Hello World'
+	inputfile = ''
+	try:
+		opts, args = getopt.getopt(argv, "hi:",["ifile="])
+	except getopt.GetoptError:
+		print 'vectorir.py -i <inputfile>'
+		sys.exit(2)
+	
+	if not opts:
+		print 'vectorir.py -i <inputfile>'
+		sys.exit(2)
+	
+	for opt, arg in opts:
+		#print opts
+		if opt == '-h':
+			print 'vectorir.py -i <inputfile>'
+			sys.exit()
+		elif opt in ("-i", "--ifile"):
+			inputfile = arg
+
+    #print('Hello')
 if __name__ == '__main__':
     main(sys.argv[1:])
