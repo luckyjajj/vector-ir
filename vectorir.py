@@ -31,11 +31,27 @@ class FileParser:
 class Tree:
 	#Indexer data structure
 	def __init__(self):
+		self.tree = []
 		pass
+	def add(self, word=None, postLink=[]):
+		x = Node(word,postLink)
+		#x.displayWord()
+		self.tree.append(x)
+		pass
+	def search(self, word):
+		pass
+	def showTree(self):
+		print self.tree
 
 class Node:
 	#Elements in a tree
-	def __init__(self):
+	def __init__(self, word, postLink):
+		self.link = []
+		self.word = word
+		self.postLink = postLink
+		pass
+	def displayWord(self):
+		print self.word
 
 
 class Indexer:
@@ -67,14 +83,12 @@ def main(argv):
 			sys.exit()
 		elif opt in ("-i", "--ifile"):
 			inputfile = arg
-	test = Indexer()
-	test.buildTree()
+	test = Tree()
+	test.add('google')
+	#test.showTree()
+	#test.tree[0].displayWord()
 
-	
-    x = FileParser(inputfile)
-	x.parseFile()
-	x.commonWords()
 
-    #print('Hello')
+
 if __name__ == '__main__':
     main(sys.argv[1:])
