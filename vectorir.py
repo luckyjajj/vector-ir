@@ -16,6 +16,9 @@ class FileParser:
 class Indexer:
 	def __init__(self):
 		pass
+	def buildTree(self):
+		#Build tree
+		pass
 
 
 def main(argv):
