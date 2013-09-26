@@ -1,7 +1,9 @@
 vector-ir
 ========
 
-##Python application the generates a inverted index.
+##invert.py
+
+Python application the generates a inverted index.
 
 ###Running
 
