@@ -33,10 +33,34 @@ class Tree:
 	def __init__(self):
 		self.tree = []
 		pass
-	def add(self, word=None, postLink=[]):
+	def addTest(self, word=None, postLink=[]):
 		x = Node(word,postLink)
-		#x.displayWord()
 		self.tree.append(x)
+
+
+	def add(self, word=None, postLink=[],level=0):
+		link = False
+		x = Node(word,postLink)
+		word = x.getWord()
+		for node in self.tree:
+			print node.getChar(level)
+			if (x.getChar(level) == node.getChar(level)):
+				link = True
+				#print 'Oh snap'
+				break
+
+		if (link):
+			#Recursion
+			pass
+		else:
+			self.tree.append(x)				
+		#loop through tree level
+			#if no node then add
+			#else check if think exist to next level node
+				# if exist recursice call to add node
+				# else add node
+		#x.displayWord()
+
 		pass
 	def search(self, word):
 		pass
@@ -49,10 +73,13 @@ class Node:
 		self.link = []
 		self.word = word
 		self.postLink = postLink
-		pass
+
 	def displayWord(self):
 		print self.word
-
+	def getWord(self):
+		return self.word
+	def getChar(self, pos):
+		return self.word[pos]
 
 class Indexer:
 	def __init__(self):
@@ -69,23 +96,25 @@ def main(argv):
 	try:
 		opts, args = getopt.getopt(argv, "hi:",["ifile="])
 	except getopt.GetoptError:
-		print 'vectorir.py -i <inputfile>'
+		print 'invert.py -i <inputfile>'
 		sys.exit(2)
 	
 	if not opts:
-		print 'vectorir.py -i <inputfile>'
+		print 'invert.py -i <inputfile>'
 		sys.exit(2)
 	
 	for opt, arg in opts:
 		#print opts
 		if opt == '-h':
-			print 'vectorir.py -i <inputfile>'
+			print 'invert.py -i <inputfile>'
 			sys.exit()
 		elif opt in ("-i", "--ifile"):
 			inputfile = arg
 	test = Tree()
+	test.addTest('cat')
+	#test.addTest('good')
 	test.add('google')
-	#test.showTree()
+	test.showTree()
 	#test.tree[0].displayWord()
 
 
