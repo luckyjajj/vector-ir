@@ -38,47 +38,62 @@ class Tree:
 		self.tree.append(x)
 
 
-	def add(self, word=None, postLink=[],level=0):
-		link = False
-		x = Node(word,postLink)
-		word = x.getWord()
-		for node in self.tree:
-			print node.getChar(level)
-			if (x.getChar(level) == node.getChar(level)):
-				link = True
-				#print 'Oh snap'
+	def add(self, word=None, postLink=[],level=0,subtree=None):
+		connection = False
+		x = Node(word,level,postLink)
+		x.changeChar(level)
+		newSubTree = None
+		if (level == 0):
+			subtree = self.tree
+
+		for node in subtree:
+			if (x.getChar() == node.getChar()):
+				connection = True
+				newSubTree = node.link
+				if (node.getWord() != None):
+					self.add(node.getWord(),postLink,level+1,newSubTree)
+				node.clearWord()
 				break
 
-		if (link):
-			#Recursion
+		if (connection):
+			del x
+			self.add(word,postLink,level+1,newSubTree)
 			pass
 		else:
-			self.tree.append(x)				
-		#loop through tree level
-			#if no node then add
-			#else check if think exist to next level node
-				# if exist recursice call to add node
-				# else add node
-		#x.displayWord()
+			subtree.append(x)			
 
-		pass
 	def search(self, word):
 		pass
-	def showTree(self):
-		print self.tree
+	def showTree(self,subtree=None):
+		for node in subtree:
+			if not node.link:
+				print node.getWord()
+			else:
+				if (node.getWord()!= None):
+					print node.getWord()
+				print node.getChar()
+				self.showTree(node.link)
+
+
+
+
 
 class Node:
 	#Elements in a tree
-	def __init__(self, word, postLink):
+	def __init__(self, word, level, postLink):
 		self.link = []
+		self.char = word[level]
 		self.word = word
 		self.postLink = postLink
-
-	def displayWord(self):
-		print self.word
+	def changeChar(self,level):
+		self.char = self.word[level]
+	def clearWord(self):
+		self.word = None
 	def getWord(self):
 		return self.word
-	def getChar(self, pos):
+	def getChar (self):
+		return self.char
+	def getCharAt(self, pos):
 		return self.word[pos]
 
 class Indexer:
@@ -111,10 +126,14 @@ def main(argv):
 		elif opt in ("-i", "--ifile"):
 			inputfile = arg
 	test = Tree()
-	test.addTest('cat')
-	#test.addTest('good')
+	test.add('cat')
+	test.add('good')
 	test.add('google')
-	test.showTree()
+	test.add('goa')
+	#test.testG()
+	test.add('game')
+	test.add('goods')
+	test.showTree(test.tree)
 	#test.tree[0].displayWord()
 
 
