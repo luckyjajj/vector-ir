@@ -9,7 +9,6 @@ class FileParser:
 		self.temp = []
 		self.grandList = []
 		self.cWords = []
-		self.count = 0
 		self.stemWord = ''
 
 	def parseFile(self):
@@ -17,7 +16,9 @@ class FileParser:
 		#Reads file line by line and compares with cWords list, inserting valid terms into grandList
 		file = open(self.path, 'r')
 		for line in file:
+			self.count = 0
 			for word in line.split():
+
 				#For .I (Index Number)
 				if word == '.I':
 					for word in line.split():
@@ -33,7 +34,7 @@ class FileParser:
 								break
 							goodWord = ''
 							for c in word:
-								if c.isalnum() or c != '\'' or c == '-' or '\"' or c == '+' or c == '*' or c == '/':
+								if c.isalnum() or c == '-' or c == '+' or c == '*' or c == '/':
 									goodWord += c.lower()
 							stemWord = p.stem(goodWord, 0, len(goodWord)-1)
 							for x in self.cWords: 
@@ -53,15 +54,17 @@ class FileParser:
 
 				#For .W (Abstract)
 				if word == '.W':
+					self.count -=1
 					for line in file:
 						if word == '.B':
 							break
 						for word in line.split():
+							self.count += 1
 							if word == '.B':
 								break
 							goodWord = ''
 							for c in word:
-								if c.isalnum() or c != '\'' or c == '-' or '\"' or c == '+' or c == '*' or c == '/':
+								if c.isalnum() or c == '-' or c == '+' or c == '*' or c == '/':
 									goodWord += c.lower()
 							stemWord = p.stem(goodWord, 0, len(goodWord)-1)
 							for x in self.cWords:
@@ -71,17 +74,18 @@ class FileParser:
 								for y in self.grandList:
 									if y[0] == stemWord:
 										y[1].append((indexNum, self.count))
+										break
 								else:
 									temp = [stemWord, [(indexNum, self.count)]]
 									self.grandList.append(temp)
 		print(self.grandList)
+
 	def commonWords(self):
 		#Read common word file and load it into a array
 		file = open('CACM/common_words', 'r')
 		for line in file:
 			for word in line.split():
 				self.cWords.append(word)
-		#print(self.cWords)
 	
 # class Tree:
 # 	#Indexer data structure
@@ -125,7 +129,6 @@ def main(argv):
 	#test.buildTree()
 	x = FileParser(inputfile)
 	x.commonWords()
-
 	x.parseFile()
 
     #print('Hello')
