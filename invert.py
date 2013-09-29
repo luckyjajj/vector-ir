@@ -66,10 +66,12 @@ class Tree:
 	def showTree(self,subtree=None):
 		for node in subtree:
 			if not node.link:
-				print node.getWord()
+				print node.getWord(),
+				print node.getPostLink()
 			else:
 				if (node.getWord()!= None):
-					print node.getWord()
+					print node.getWord(),
+					print node.getPostLink()
 				print node.getChar()
 				self.showTree(node.link)
 
@@ -118,8 +120,12 @@ class Indexer:
 	
 	def buildTree(self):
 		#Build tree
-		print self.terms[0][1][1]
-		pass
+		index = Tree()
+		for term in self.terms:
+			index.add(term[0],term[1])
+
+		index.showTree(index.tree)
+
 
 
 def main(argv):
@@ -150,11 +156,10 @@ def main(argv):
 	test.add('goods')
 	test.add('goodies')
 	test.add('goodie')
-	#test.testCase()"""
-	test.showTree(test.tree)
-
-
-
+	#test.testCase()
+	test.showTree(test.tree)"""
+	index = Indexer()
+	index.buildTree()
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+	main(sys.argv[1:])
