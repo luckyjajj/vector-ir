@@ -29,14 +29,11 @@ class FileParser:
 		pass
 	
 class Tree:
-	#Indexer data structure
+	"""
+		Search tree data structure for document index
+	"""
 	def __init__(self):
 		self.tree = []
-		pass
-	def addTest(self, word=None, postLink=[]):
-		x = Node(word,postLink)
-		self.tree.append(x)
-
 
 	def add(self, word=None, postLink=[],level=0,subtree=None):
 		connection = False
@@ -51,8 +48,9 @@ class Tree:
 				connection = True
 				newSubTree = node.link
 				if (node.getWord() != None):
-					self.add(node.getWord(),postLink,level+1,newSubTree)
+					self.add(node.getWord(),node.getPostLink(),level+1,newSubTree)
 				node.clearWord()
+				node.clearPostLink()
 				break
 
 		if (connection):
@@ -64,6 +62,7 @@ class Tree:
 
 	def search(self, word):
 		pass
+		
 	def showTree(self,subtree=None):
 		for node in subtree:
 			if not node.link:
@@ -76,30 +75,47 @@ class Tree:
 
 
 
-
-
 class Node:
-	#Elements in a tree
+	"""
+		Node for Tree data structure
+	"""
 	def __init__(self, word, level, postLink):
 		self.link = []
-		self.char = word[level]
+		if (level < word.__len__()):
+			self.char = word[level]
+		else:
+			self.char = ' '
 		self.word = word
 		self.postLink = postLink
+
 	def changeChar(self,level):
-		self.char = self.word[level]
+		if (level < self.word.__len__()):
+			self.char = self.word[level]
+		else:
+			self.char = ' '
+
 	def clearWord(self):
 		self.word = None
+
+	def clearPostLink(self):
+		self.postLink = []
+
+	def getPostLink(self):
+		return self.postLink
+
 	def getWord(self):
 		return self.word
+	
 	def getChar (self):
 		return self.char
-	def getCharAt(self, pos):
-		return self.word[pos]
+	
 
 class Indexer:
+	
 	def __init__(self):
 		self.terms = [['google', [(1,1),(1,50)]],['cat',[(2,3)]]] #practic terms
 		pass
+	
 	def buildTree(self):
 		#Build tree
 		print self.terms[0][1][1]
@@ -125,16 +141,18 @@ def main(argv):
 			sys.exit()
 		elif opt in ("-i", "--ifile"):
 			inputfile = arg
-	test = Tree()
+	"""test = Tree()
 	test.add('cat')
 	test.add('good')
 	test.add('google')
 	test.add('goa')
-	#test.testG()
 	test.add('game')
 	test.add('goods')
+	test.add('goodies')
+	test.add('goodie')
+	#test.testCase()"""
 	test.showTree(test.tree)
-	#test.tree[0].displayWord()
+
 
 
 
