@@ -87,6 +87,106 @@ class FileParser:
 			for word in line.split():
 				self.cWords.append(word)
 	
+<<<<<<< HEAD
+class Tree:
+	"""
+		Search tree data structure for document index
+	"""
+	def __init__(self):
+		self.tree = []
+
+	def add(self, word=None, postLink=[],level=0,subtree=None):
+		connection = False
+		x = Node(word,level,postLink)
+		x.changeChar(level)
+		newSubTree = None
+		if (level == 0):
+			subtree = self.tree
+
+		for node in subtree:
+			if (x.getChar() == node.getChar()):
+				connection = True
+				newSubTree = node.link
+				if (node.getWord() != None):
+					self.add(node.getWord(),node.getPostLink(),level+1,newSubTree)
+				node.clearWord()
+				node.clearPostLink()
+				break
+
+		if (connection):
+			del x
+			self.add(word,postLink,level+1,newSubTree)
+			pass
+		else:
+			subtree.append(x)			
+
+	def search(self, word):
+		pass
+		
+	def showTree(self,subtree=None):
+		for node in subtree:
+			if not node.link:
+				print node.getWord(),
+				print node.getPostLink()
+			else:
+				if (node.getWord()!= None):
+					print node.getWord(),
+					print node.getPostLink()
+				print node.getChar()
+				self.showTree(node.link)
+
+
+
+class Node:
+	"""
+		Node for Tree data structure
+	"""
+	def __init__(self, word, level, postLink):
+		self.link = []
+		if (level < word.__len__()):
+			self.char = word[level]
+		else:
+			self.char = ' '
+		self.word = word
+		self.postLink = postLink
+
+	def changeChar(self,level):
+		if (level < self.word.__len__()):
+			self.char = self.word[level]
+		else:
+			self.char = ' '
+
+	def clearWord(self):
+		self.word = None
+
+	def clearPostLink(self):
+		self.postLink = []
+
+	def getPostLink(self):
+		return self.postLink
+
+	def getWord(self):
+		return self.word
+	
+	def getChar (self):
+		return self.char
+	
+
+class Indexer:
+	
+	def __init__(self):
+		self.terms = [['google', [(1,1),(1,50)]],['cat',[(2,3)]]] #practic terms
+		pass
+	
+	def buildTree(self):
+		#Build tree
+		index = Tree()
+		for term in self.terms:
+			index.add(term[0],term[1])
+
+		index.showTree(index.tree)
+
+=======
 # class Tree:
 # 	#Indexer data structure
 # 	def __init__(self):
@@ -96,6 +196,7 @@ class FileParser:
 # 	#Elements in a tree
 # 	def __init__(self):
 # 		pass
+>>>>>>> master
 
 # class Indexer:
 # 	def __init__(self):
@@ -111,16 +212,43 @@ def main(argv):
 	try:
 		opts, args = getopt.getopt(argv, "hi:",["ifile="])
 	except getopt.GetoptError:
+<<<<<<< HEAD
+		print 'invert.py -i <inputfile>'
+		sys.exit(2)
+	
+	if not opts:
+		print 'invert.py -i <inputfile>'
+=======
 		print('vectorir.py -i <inputfile>')
 		sys.exit(2)
 	
 	if not opts:
 		print ('vectorir.py -i <inputfile>')
+>>>>>>> master
 		sys.exit(2)
 	
 	for opt, arg in opts:
 		#print opts
 		if opt == '-h':
+<<<<<<< HEAD
+			print 'invert.py -i <inputfile>'
+			sys.exit()
+		elif opt in ("-i", "--ifile"):
+			inputfile = arg
+	"""test = Tree()
+	test.add('cat')
+	test.add('good')
+	test.add('google')
+	test.add('goa')
+	test.add('game')
+	test.add('goods')
+	test.add('goodies')
+	test.add('goodie')
+	#test.testCase()
+	test.showTree(test.tree)"""
+	index = Indexer()
+	index.buildTree()
+=======
 			print('vectorir.py -i <inputfile>')
 			sys.exit()
 		elif opt in ("-i", "--ifile"):
@@ -130,7 +258,8 @@ def main(argv):
 	x = FileParser(inputfile)
 	x.commonWords()
 	x.parseFile()
+>>>>>>> master
 
     #print('Hello')
 if __name__ == '__main__':
-    main(sys.argv[1:])
+	main(sys.argv[1:])
