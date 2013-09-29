@@ -86,8 +86,7 @@ class FileParser:
 		for line in file:
 			for word in line.split():
 				self.cWords.append(word)
-	
-<<<<<<< HEAD
+
 class Tree:
 	"""
 		Search tree data structure for document index
@@ -186,55 +185,26 @@ class Indexer:
 
 		index.showTree(index.tree)
 
-=======
-# class Tree:
-# 	#Indexer data structure
-# 	def __init__(self):
-# 		pass
-
-# class Node:
-# 	#Elements in a tree
-# 	def __init__(self):
-# 		pass
->>>>>>> master
-
-# class Indexer:
-# 	def __init__(self):
-# 		self.terms = [['google', [(1,1),(1,50)]],['cat',[(2,3)]]] #practic terms
-# 		pass
-# 	def buildTree(self):
-# 		#Build tree
-# 		print self.terms[0][1][1]
-# 		pass
-
 def main(argv):
 	inputfile = ''
 	try:
 		opts, args = getopt.getopt(argv, "hi:",["ifile="])
 	except getopt.GetoptError:
-<<<<<<< HEAD
 		print 'invert.py -i <inputfile>'
 		sys.exit(2)
 	
 	if not opts:
 		print 'invert.py -i <inputfile>'
-=======
-		print('vectorir.py -i <inputfile>')
-		sys.exit(2)
-	
-	if not opts:
-		print ('vectorir.py -i <inputfile>')
->>>>>>> master
 		sys.exit(2)
 	
 	for opt, arg in opts:
 		#print opts
 		if opt == '-h':
-<<<<<<< HEAD
 			print 'invert.py -i <inputfile>'
 			sys.exit()
 		elif opt in ("-i", "--ifile"):
 			inputfile = arg
+	
 	"""test = Tree()
 	test.add('cat')
 	test.add('good')
@@ -248,17 +218,10 @@ def main(argv):
 	test.showTree(test.tree)"""
 	index = Indexer()
 	index.buildTree()
-=======
-			print('vectorir.py -i <inputfile>')
-			sys.exit()
-		elif opt in ("-i", "--ifile"):
-			inputfile = arg
-	#test = Indexer()
-	#test.buildTree()
-	x = FileParser(inputfile)
-	x.commonWords()
-	x.parseFile()
->>>>>>> master
+	#x = FileParser(inputfile)
+	#x.commonWords()
+	#x.parseFile()
+
 
     #print('Hello')
 if __name__ == '__main__':
