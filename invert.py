@@ -78,7 +78,7 @@ class FileParser:
 								else:
 									temp = [stemWord, [(indexNum, self.count)]]
 									self.grandList.append(temp)
-		print(self.grandList)
+		#print(self.grandList)
 
 	def commonWords(self):
 		#Read common word file and load it into a array
@@ -86,6 +86,9 @@ class FileParser:
 		for line in file:
 			for word in line.split():
 				self.cWords.append(word)
+
+	def getGrandList(self):
+		return self.grandList
 
 class Tree:
 	"""
@@ -173,9 +176,8 @@ class Node:
 
 class Indexer:
 	
-	def __init__(self):
-		self.terms = [['google', [(1,1),(1,50)]],['cat',[(2,3)]]] #practic terms
-		pass
+	def __init__(self, tlist):
+		self.terms = tlist
 	
 	def buildTree(self):
 		#Build tree
@@ -214,13 +216,13 @@ def main(argv):
 	test.add('goods')
 	test.add('goodies')
 	test.add('goodie')
-	#test.testCase()
 	test.showTree(test.tree)"""
-	index = Indexer()
+
+	x = FileParser(inputfile)
+	x.commonWords()
+	x.parseFile()
+	index = Indexer(x.getGrandList())
 	index.buildTree()
-	#x = FileParser(inputfile)
-	#x.commonWords()
-	#x.parseFile()
 
 
     #print('Hello')
