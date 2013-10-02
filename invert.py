@@ -89,56 +89,6 @@ class FileParser:
 
 	def getGrandList(self):
 		return self.grandList
-
-class Tree:
-	"""
-		Search tree data structure for document index
-	"""
-	def __init__(self):
-		self.tree = []
-
-	def add(self, word=None, postLink=[],level=0,subtree=None):
-		connection = False
-		x = Node(word,level,postLink)
-		x.changeChar(level)
-		newSubTree = None
-		if (level == 0):
-			subtree = self.tree
-
-		for node in subtree:
-			if (x.getChar() == node.getChar()):
-				connection = True
-				newSubTree = node.link
-				if (node.getWord() != None):
-					self.add(node.getWord(),node.getPostLink(),level+1,newSubTree)
-				node.clearWord()
-				node.clearPostLink()
-				break
-
-		if (connection):
-			del x
-			self.add(word,postLink,level+1,newSubTree)
-			pass
-		else:
-			subtree.append(x)			
-
-	def search(self, word):
-		pass
-		
-	def showTree(self,subtree=None):
-		for node in subtree:
-			if not node.link:
-				print node.getWord(),
-				print node.getPostLink()
-			else:
-				if (node.getWord()!= None):
-					print node.getWord(),
-					print node.getPostLink()
-				print node.getChar()
-				self.showTree(node.link)
-
-
-
 class Node:
 	"""
 		Node for Tree data structure
@@ -172,9 +122,69 @@ class Node:
 	
 	def getChar (self):
 		return self.char
+
+
+class Tree:
+	"""
+		Search tree data structure for document index
+	"""
+	def __init__(self):
+		self.tree = []
+
+	def add(self, word=None, postLink=[],level=0,subtree=None):
+		connection = False
+		x = Node(word,level,postLink)
+		x.changeChar(level)
+		newSubTree = None
+		if (level == 0):
+			subtree = self.tree
+
+		for node in subtree:
+			if (x.getChar() == node.getChar()):
+				connection = True
+				newSubTree = node.link
+				if (node.getWord() != None):
+					self.add(node.getWord(),node.getPostLink(),level+1,newSubTree)
+				node.clearWord()
+				node.clearPostLink()
+				break
+
+		if (connection):
+			del x
+			self.add(word,postLink,level+1,newSubTree)
+			pass
+		else:
+			subtree.append(x)			
+
+	def search(self, word, subtree, oword=None):
+		if (oword == None):
+			oword = word
+
+		for node in subtree:
+			if (node.getWord() == oword):
+				return 'found'
+			elif (node.getChar() == word[0]):
+				#print word
+				return self.search(word[1:],node.link,oword)
+		else:
+			return 'not found'
+
+
+	
+	def showTree(self,subtree=None):
+		for node in subtree:
+			if not node.link:
+				print node.getWord(),
+				print node.getPostLink()
+			else:
+				if (node.getWord()!= None):
+					print node.getWord(),
+					print node.getPostLink()
+				print node.getChar()
+				self.showTree(node.link)
 	
 
-class Indexer:
+class Index:
 	
 	def __init__(self, tlist):
 		self.terms = tlist
@@ -185,7 +195,10 @@ class Indexer:
 		for term in self.terms:
 			index.add(term[0],term[1])
 
-		index.showTree(index.tree)
+		#index.showTree(index.tree)
+	def saveIndexTerms(self):
+		#for 
+		pass
 
 def main(argv):
 	inputfile = ''
@@ -207,24 +220,28 @@ def main(argv):
 		elif opt in ("-i", "--ifile"):
 			inputfile = arg
 	
-	"""test = Tree()
-	test.add('cat')
+	test = Tree()
+	test.add('cat', [(1,1),(2,3)])
 	test.add('good')
 	test.add('google')
 	test.add('goa')
 	test.add('game')
 	test.add('goods')
-	test.add('goodies')
+	test.add('goodies',[(5,1),(5,3)])
 	test.add('goodie')
-	test.showTree(test.tree)"""
+	#test.testCase()
+	test.showTree(test.tree)
+	print test.search('batman',test.tree)
+	print test.search('goodies',test.tree)
+	#test.search('goodie',test.tree)
+	#test.search('batman',test.tree)
+	
 
-	x = FileParser(inputfile)
+	"""x = FileParser(inputfile)
 	x.commonWords()
 	x.parseFile()
-	index = Indexer(x.getGrandList())
-	index.buildTree()
+	index = Index(x.getGrandList())
+	index.buildTree()"""
 
-
-    #print('Hello')
 if __name__ == '__main__':
 	main(sys.argv[1:])
