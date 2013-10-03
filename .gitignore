@@ -40,3 +40,4 @@ cite.info
 common_words
 qrels.text
 query.text
+*.pk

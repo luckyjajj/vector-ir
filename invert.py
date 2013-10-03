@@ -170,7 +170,6 @@ class Tree:
 			if (node.getWord() == oword):
 				return 'found'
 			elif (node.getChar() == word[0]):
-				#print word
 				return self.search(word[1:],node.link,oword)
 		else:
 			return 'not found'
@@ -227,7 +226,7 @@ class Index:
 
 	def saveTermfile(self):
 		self.compileIndexTerms()
-		with open('termfile.pk', 'wb') as output:
+		with open('dictionary.pk', 'wb') as output:
 			pickle.dump(self.termfile, output, pickle.HIGHEST_PROTOCOL)
 
 
@@ -258,21 +257,6 @@ def main(argv):
 		elif opt in ("-i", "--ifile"):
 			inputfile = arg
 	
-	"""test = Tree()
-	test.add('cat', [(1,1),(2,3)])
-	test.add('good')
-	test.add('google')
-	test.add('goa')
-	test.add('game')
-	test.add('goods')
-	test.add('goodies',[(5,1),(5,3)])
-	test.add('goodie')
-	#test.testCase()
-	test.showTree(test.tree)
-	print test.search('batman')
-	print test.search('goodies')"""
-	#test.search('goodie',test.tree)
-	#test.search('batman',test.tree)
 	#tester = [['cat',[(1,1),(1,2)]],['good',[(3,4),(5,7)]],['google',[(4,1),(4,47),(4,87)]],['goa',[(100,4),(100,7)]],['game',[(102,4),(102,7)]],['goods',[(81,81),(81,82)]]]
 
 	x = FileParser(inputfile)
@@ -281,9 +265,7 @@ def main(argv):
 
 	index = Index(x.getGrandList())
 	index.buildTree()
-	#index.compileIndexTerms()
 	index.saveTermfile()
-	#index.compileIndexPostLink()
 	index.savePostfile()
 
 if __name__ == '__main__':

@@ -1,3 +1,8 @@
+import sys
+import os
+import getopt
+import pickle
+
 class Node:
 	"""
 		Node for Tree data structure
@@ -100,28 +105,49 @@ class Tree:
 class Index:
 	def __init__(self):
 		self.index = None
-		self.termfile = []
-		self.postfile =[]
+		self.termfile = None
+		self.postfile =None
+
+	def loadData(self):
+		file1 = open("dictionary.pk",'r')
+		self.termfile = pickle.load(file1)
+		file2 = open("postfile.pk",'r')
+		self.postfile = pickle.load(file2)
+		self.buidTree()
+
+	def buidTree(self):
+		self.index = Tree()
+		i =0
+		for term in self.termfile:
+			self.index.add(term[0],self.postfile[i])
+			i = i +1
+
 
 def main(argv):
 	inputfile = ''
 	try:
-		opts, args = getopt.getopt(argv, "hi:",["ifile="])
+		opts, args = getopt.getopt(argv, "h:",["ifile="])
 	except getopt.GetoptError:
-		print 'test.py -i <inputfile>'
+		print 'test.py'
 		sys.exit(2)
-	
-	if not opts:
-		print 'test.py -i <inputfile>'
-		sys.exit(2)
-	
+			
 	for opt, arg in opts:
-		#print opts
+	
 		if opt == '-h':
-			print 'test.py -i <inputfile>'
+			print 'test.py'
 			sys.exit()
-		elif opt in ("-i", "--ifile"):
-			inputfile = arg
+
+	index = Index()
+	index.loadData()
+	
+	print 'ZZEND to quit'
+	while True:
+		term = raw_input("Enter search term: ")
+		if (term != 'ZZEND'):
+			print index.index.search(term)
+		else:
+			sys.exit()
+		pass
 
 if __name__ == '__main__':
 	main(sys.argv[1:])
