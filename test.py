@@ -175,7 +175,7 @@ class Index:
 
 def main(argv):
 	inputfile = ''
-	stemFlag = False
+	stemFlag = True
 	try:
 		opts, args = getopt.getopt(argv, "hs")
 	except getopt.GetoptError:
@@ -187,7 +187,7 @@ def main(argv):
 			print 'test.py:'
 			sys.exit()
 		elif opt  == '-s':
-			stemFlag = True
+			stemFlag = False
 
 
 	index = Index(stemFlag)
