@@ -1,6 +1,7 @@
 import sys
 import os
 import getopt
+import pickle
 import porterAlgo
 
 class FileParser:
@@ -78,7 +79,6 @@ class FileParser:
 								else:
 									temp = [stemWord, [(indexNum, self.count)]]
 									self.grandList.append(temp)
-		#print(self.grandList)
 
 	def commonWords(self):
 		#Read common word file and load it into a array
@@ -89,6 +89,7 @@ class FileParser:
 
 	def getGrandList(self):
 		return self.grandList
+
 class Node:
 	"""
 		Node for Tree data structure
@@ -113,6 +114,9 @@ class Node:
 
 	def clearPostLink(self):
 		self.postLink = []
+
+	def getPostLength(self):
+		return len(self.postLink)
 
 	def getPostLink(self):
 		return self.postLink
@@ -156,9 +160,11 @@ class Tree:
 		else:
 			subtree.append(x)			
 
-	def search(self, word, subtree, oword=None):
+	def search(self, word, subtree=None, oword=None):
 		if (oword == None):
 			oword = word
+		if (subtree == None):
+			subtree = self.tree
 
 		for node in subtree:
 			if (node.getWord() == oword):
@@ -188,17 +194,49 @@ class Index:
 	
 	def __init__(self, tlist):
 		self.terms = tlist
-	
-	def buildTree(self):
-		#Build tree
-		index = Tree()
-		for term in self.terms:
-			index.add(term[0],term[1])
+		self.index = None
+		self.termfile = []
+		self.postfile =[]
 
-		#index.showTree(index.tree)
-	def saveIndexTerms(self):
-		#for 
-		pass
+	def buildTree(self):
+		self.index = Tree()
+		for term in self.terms:
+			self.index.add(term[0],term[1])
+
+	def compileIndexTerms(self, subtree=None):
+		if subtree == None:
+			subtree = self.index.tree
+
+		for node in subtree:
+			if not node.link:
+				data = [node.getWord(),node.getPostLength()]
+				self.termfile.append(data)
+			else:
+				self.compileIndexTerms(node.link)
+
+	def compileIndexPostLink(self, subtree=None):
+		if subtree == None:
+			subtree = self.index.tree
+
+		for node in subtree:
+			if not node.link:
+				data = [node.getPostLink()]
+				self.postfile.append(data)
+			else:
+				self.compileIndexPostLink(node.link)
+
+	def saveTermfile(self):
+		self.compileIndexTerms()
+		with open('termfile.pk', 'wb') as output:
+			pickle.dump(self.termfile, output, pickle.HIGHEST_PROTOCOL)
+
+
+	def savePostfile(self):
+		self.compileIndexPostLink()
+		with open('postfile.pk', 'wb') as output:
+			pickle.dump(self.postfile, output, pickle.HIGHEST_PROTOCOL)
+
+
 
 def main(argv):
 	inputfile = ''
@@ -220,7 +258,7 @@ def main(argv):
 		elif opt in ("-i", "--ifile"):
 			inputfile = arg
 	
-	test = Tree()
+	"""test = Tree()
 	test.add('cat', [(1,1),(2,3)])
 	test.add('good')
 	test.add('google')
@@ -231,17 +269,22 @@ def main(argv):
 	test.add('goodie')
 	#test.testCase()
 	test.showTree(test.tree)
-	print test.search('batman',test.tree)
-	print test.search('goodies',test.tree)
+	print test.search('batman')
+	print test.search('goodies')"""
 	#test.search('goodie',test.tree)
 	#test.search('batman',test.tree)
-	
+	#tester = [['cat',[(1,1),(1,2)]],['good',[(3,4),(5,7)]],['google',[(4,1),(4,47),(4,87)]],['goa',[(100,4),(100,7)]],['game',[(102,4),(102,7)]],['goods',[(81,81),(81,82)]]]
 
-	"""x = FileParser(inputfile)
+	x = FileParser(inputfile)
 	x.commonWords()
 	x.parseFile()
+
 	index = Index(x.getGrandList())
-	index.buildTree()"""
+	index.buildTree()
+	#index.compileIndexTerms()
+	index.saveTermfile()
+	#index.compileIndexPostLink()
+	index.savePostfile()
 
 if __name__ == '__main__':
 	main(sys.argv[1:])
