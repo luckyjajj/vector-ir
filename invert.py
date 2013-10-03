@@ -4,13 +4,16 @@ import getopt
 import pickle
 import porterAlgo
 
+
 class FileParser:
-	def __init__(self, path):
+	def __init__(self, path, commonWords, stopWord):
 		self.path = path
 		self.temp = []
 		self.grandList = []
 		self.cWords = []
-		self.stemWord = ''
+		self.titleList = []
+		self.commonFlag = commonWords
+		self.stopFlag = stopWord
 
 	def parseFile(self):
 		p = porterAlgo.PorterStemmer()
@@ -28,29 +31,33 @@ class FileParser:
 
 				#For .T (Title)
 				if word == '.T':
+					self.titleTemp = ''
 					for line in file:
 						for word in line.split():
 							self.count += 1
 							if word == '.B' or word == '.W':
 								break
 							goodWord = ''
+							self.titleTemp += word + ' '
 							for c in word:
 								if c.isalnum() or c == '-' or c == '+' or c == '*' or c == '/':
 									goodWord += c.lower()
-							stemWord = p.stem(goodWord, 0, len(goodWord)-1)
+							if self.stopFlag == True:
+								goodWord = p.stem(goodWord, 0, len(goodWord)-1)
 							for x in self.cWords: 
 								intoArray = ''
-								if stemWord == x:
+								if goodWord == x:
 									break
 							else:
 								for y in self.grandList:
-									if y[0] == stemWord:
+									if y[0] == goodWord:
 										y[1].append((indexNum, self.count))
 										break
 								else:
-									temp = [stemWord, [(indexNum, self.count)]]
+									temp = [goodWord, [(indexNum, self.count)]]
 									self.grandList.append(temp)
 						if word == '.B' or word == '.W':
+							self.titleList.append((indexNum, self.titleTemp.strip()))
 							break
 
 				#For .W (Abstract)
@@ -67,28 +74,32 @@ class FileParser:
 							for c in word:
 								if c.isalnum() or c == '-' or c == '+' or c == '*' or c == '/':
 									goodWord += c.lower()
-							stemWord = p.stem(goodWord, 0, len(goodWord)-1)
+							if self.stopFlag == True:
+								goodWord = p.stem(goodWord, 0, len(goodWord)-1)
 							for x in self.cWords:
-								if stemWord == x:
+								if goodWord == x:
 									break
 							else:
 								for y in self.grandList:
-									if y[0] == stemWord:
+									if y[0] == goodWord:
 										y[1].append((indexNum, self.count))
 										break
 								else:
-									temp = [stemWord, [(indexNum, self.count)]]
+									temp = [goodWord, [(indexNum, self.count)]]
 									self.grandList.append(temp)
 
 	def commonWords(self):
 		#Read common word file and load it into a array
 		file = open('CACM/common_words', 'r')
-		for line in file:
-			for word in line.split():
-				self.cWords.append(word)
+		if self.commonFlag == True:
+			for line in file:
+				for word in line.split():
+					self.cWords.append(word)
 
 	def getGrandList(self):
 		return self.grandList
+	def getTitleList(self):
+		return self.titleList
 
 class Node:
 	"""
@@ -232,15 +243,22 @@ class Index:
 
 	def savePostfile(self):
 		self.compileIndexPostLink()
+		#print postfile[7418]
 		with open('postfile.pk', 'wb') as output:
 			pickle.dump(self.postfile, output, pickle.HIGHEST_PROTOCOL)
 
+	def saveTitleFile(self,data):
+		with open('titleList.pk', 'wb') as output:
+			pickle.dump(data, output, pickle.HIGHEST_PROTOCOL)
 
 
 def main(argv):
 	inputfile = ''
+	commonWords = True
+	stopWords = True
+	
 	try:
-		opts, args = getopt.getopt(argv, "hi:",["ifile="])
+		opts, args = getopt.getopt(argv, "hi:cs",["ifile="])
 	except getopt.GetoptError:
 		print 'invert.py -i <inputfile>'
 		sys.exit(2)
@@ -250,16 +268,18 @@ def main(argv):
 		sys.exit(2)
 	
 	for opt, arg in opts:
-		#print opts
 		if opt == '-h':
 			print 'invert.py -i <inputfile>'
 			sys.exit()
 		elif opt in ("-i", "--ifile"):
 			inputfile = arg
+		elif opt == '-c':
+			commonWords = False
+		elif opt == '-s':
+			stopWords = False
+			
 	
-	#tester = [['cat',[(1,1),(1,2)]],['good',[(3,4),(5,7)]],['google',[(4,1),(4,47),(4,87)]],['goa',[(100,4),(100,7)]],['game',[(102,4),(102,7)]],['goods',[(81,81),(81,82)]]]
-
-	x = FileParser(inputfile)
+	x = FileParser(inputfile, commonWords, stopWords)
 	x.commonWords()
 	x.parseFile()
 
@@ -267,6 +287,7 @@ def main(argv):
 	index.buildTree()
 	index.saveTermfile()
 	index.savePostfile()
+	index.saveTitleFile(x.getTitleList())
 
 if __name__ == '__main__':
 	main(sys.argv[1:])
