@@ -112,12 +112,12 @@ class Index:
 		self.documents = []
 
 	def loadData(self):
-		file1 = open("dictionary.pk",'r')
+		file1 = open("dictionary.pk",'rb')
 		self.termfile = pickle.load(file1)
-		file2 = open("postfile.pk",'r')
+		file2 = open("postfile.pk",'rb')
 		self.postfile = pickle.load(file2)
 		self.buidTree()
-		file3 = open("titleList.pk", "r")
+		file3 = open("titleList.pk", "rb")
 		self.titleList = pickle.load(file3)
 
 	def buidTree(self):
@@ -158,6 +158,7 @@ class Index:
 
 
 	def search(self, term):
+		node=0
 		if (self.stemFlag):
 			p = porterAlgo.PorterStemmer()
 			term = p.stem(term.lower(),0, term.__len__()-1)
@@ -176,7 +177,7 @@ def main(argv):
 	inputfile = ''
 	stemFlag = False
 	try:
-		opts, args = getopt.getopt(argv, "hc")
+		opts, args = getopt.getopt(argv, "hs")
 	except getopt.GetoptError:
 		print 'test.py -h Help -s Disable stemming'
 		sys.exit(2)
