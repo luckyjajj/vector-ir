@@ -79,11 +79,15 @@ class Tree:
 			oword = word
 		if (subtree == None):
 			subtree = self.tree
+		try:
+			temp = word[0]
+		except IndexError:
+			temp = ' '
 
 		for node in subtree:
 			if (node.getWord() == oword):
 				return node
-			elif (node.getChar() == word[0]):
+			elif (node.getChar() == temp):
 				return self.search(word[1:],node.link,oword)
 		else:
 			return 0
