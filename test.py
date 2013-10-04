@@ -226,7 +226,7 @@ def main(argv):
 
 	index = Index(stemFlag)
 	index.loadData()
-	
+	times = []
 	print 'ZZEND to quit'
 	while True:
 		
@@ -235,8 +235,18 @@ def main(argv):
 			t0 = time.time()
 			print index.search(term)
 			t1 = time.time()
-			print 'Time of search',t1-t0
+			timez = t1-t0
+			print 'Time of search:', timez
+			times.append(timez)
 		else:
+			i = 0
+			total = 0
+			for timez in times:
+				total = total + timez
+				i = i +1
+
+			print 'Average time for all searches: ',total/i
+
 			sys.exit()
 		pass
 
