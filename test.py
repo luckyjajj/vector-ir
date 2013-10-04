@@ -107,9 +107,12 @@ class Index:
 		self.index = None
 		self.termfile = None
 		self.postfile =None
+		self.titleAbstract = None
 		self.titleList = None
+		self.titleAbstract = None
 		self.stemFlag = stemFlag
 		self.documents = []
+
 
 	def loadData(self):
 		file1 = open("dictionary.pk",'rb')
@@ -119,6 +122,8 @@ class Index:
 		self.buidTree()
 		file3 = open("titleList.pk", "rb")
 		self.titleList = pickle.load(file3)
+		file4 = open("titleAbstract.pk", "rb")
+		self.titleAbstract = pickle.load(file4)
 
 	def buidTree(self):
 		self.index = Tree()
@@ -126,6 +131,7 @@ class Index:
 		for term in self.termfile:
 			self.index.add(term[0],self.postfile[i][0])
 			i = i +1
+			
 	def documentFreq(self, post):
 		for occurence in post:
 			if (occurence[0] in self.documents):
@@ -133,7 +139,7 @@ class Index:
 			else:
 				self.documents.append(occurence[0])
 
-		return 'We found '+str(self.documents.__len__())+' documents'
+		return 'We found '+str(self.documents.__len__())+' documents\n'
 	
 	def termFreq(self,idz,post):
 		total = 0
@@ -141,22 +147,46 @@ class Index:
 			if (idz == occurence[0]):
 				total = total +1
 		return total
+		
 	def displayPosition(self,idz, post):
 		pos = []
 		for occurence in post:
 			if (idz == occurence[0]):
 				pos.append(occurence[1])
 		return pos
+		
+	def context(self, idz, post):
+		temp = ''
+		start = 0
+		end = 0
+		self.pos=0
+		for occurence in post:
+			if (idz == occurence[0]):
+				self.pos = occurence[1]
+				break
+		for subList in self.titleAbstract:
+			if (idz == subList[0]):
+				if self.pos - 6 <= 0:
+					start = 0
+				else:
+					start = self.pos - 6
+				if self.pos + 5 >= len(subList[1]):
+					end = len(subList[1])
+				else:
+					end = self.pos + 5
+				for k in subList[1][start:end]:
+					temp += k + ' '
+		return(temp + '\n\n')
+		
 	def printData(self,post):
 		for document in self.documents:
 			for title in self.titleList:
 				if (document == title[0]):
-					print title[0],'   ',title[1],'  '
-					print self.termFreq(title[0],post)
-					print self.displayPosition(title[0],post)
-
-
-
+					print title[0],'   ',title[1]
+					print 'Found ' + str(self.termFreq(title[0],post)) + ' term(s) in this document.'
+					print 'The position is/are ' + str(self.displayPosition(title[0],post)) + '.'
+					print self.context(title[0], post)
+					
 	def search(self, term):
 		node=0
 		if (self.stemFlag):
@@ -167,11 +197,10 @@ class Index:
 			post = node.getPostLink()
 			print self.documentFreq(post)
 			self.printData(post)
+
 			return 'Found'
 		else: 
 			return 'Not Found'
-
-
 
 def main(argv):
 	inputfile = ''

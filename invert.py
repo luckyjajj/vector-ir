@@ -14,6 +14,7 @@ class FileParser:
 		self.titleList = []
 		self.commonFlag = commonWords
 		self.stopFlag = stopWord
+		self.titleAbstract = []
 
 	def parseFile(self):
 		p = porterAlgo.PorterStemmer()
@@ -39,6 +40,12 @@ class FileParser:
 								break
 							goodWord = ''
 							self.titleTemp += word + ' '
+							for j in self.titleAbstract:
+								if j[0] == indexNum:
+									j[1].append(word)
+									break
+							else:
+								self.titleAbstract.append([indexNum, [word]])
 							for c in word:
 								if c.isalnum() or c == '-' or c == '+' or c == '*' or c == '/':
 									goodWord += c.lower()
@@ -71,6 +78,10 @@ class FileParser:
 							if word == '.B':
 								break
 							goodWord = ''
+							for j in self.titleAbstract:
+								if j[0] == indexNum:
+									j[1].append(word)
+									break
 							for c in word:
 								if c.isalnum() or c == '-' or c == '+' or c == '*' or c == '/':
 									goodWord += c.lower()
@@ -100,6 +111,8 @@ class FileParser:
 		return self.grandList
 	def getTitleList(self):
 		return self.titleList
+	def getTitleAbstract(self):
+		return self.titleAbstract
 
 class Node:
 	"""
@@ -243,12 +256,15 @@ class Index:
 
 	def savePostfile(self):
 		self.compileIndexPostLink()
-		#print postfile[7418]
 		with open('postfile.pk', 'wb') as output:
 			pickle.dump(self.postfile, output, pickle.HIGHEST_PROTOCOL)
 
 	def saveTitleFile(self,data):
 		with open('titleList.pk', 'wb') as output:
+			pickle.dump(data, output, pickle.HIGHEST_PROTOCOL)
+			
+	def saveAbstractFile(self,data):
+		with open('titleAbstract.pk', 'wb') as output:
 			pickle.dump(data, output, pickle.HIGHEST_PROTOCOL)
 
 
@@ -288,6 +304,7 @@ def main(argv):
 	index.saveTermfile()
 	index.savePostfile()
 	index.saveTitleFile(x.getTitleList())
+	index.saveAbstractFile(x.getTitleAbstract())
 
 if __name__ == '__main__':
 	main(sys.argv[1:])
