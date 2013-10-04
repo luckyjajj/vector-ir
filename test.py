@@ -3,6 +3,7 @@ import os
 import getopt
 import pickle
 import porterAlgo
+import time
 
 class Node:
 	"""
@@ -231,7 +232,10 @@ def main(argv):
 		
 		term = raw_input("Enter search term: ")
 		if (term != 'ZZEND'):
+			t0 = time.time()
 			print index.search(term)
+			t1 = time.time()
+			print 'Time of search',t1-t0
 		else:
 			sys.exit()
 		pass
