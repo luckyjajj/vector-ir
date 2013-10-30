@@ -197,7 +197,7 @@ class Index:
 		if (self.stemFlag):
 			p = porterAlgo.PorterStemmer()
 			term = p.stem(term.lower(),0, term.__len__()-1)
-			node = self.index.search(term) 
+		node = self.index.search(term) 
 		if (node != 0):
 			post = node.getPostLink()
 			print self.documentFreq(post)
