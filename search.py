@@ -6,6 +6,7 @@ import getopt
 import pickle
 import porterAlgo
 import time
+import math
 
 class Node:
 	"""
@@ -19,6 +20,7 @@ class Node:
 			self.char = ' '
 		self.word = word
 		self.postLink = postLink
+		self.termFreq = [];
 
 	def changeChar(self,level):
 		if (level < self.word.__len__()):
@@ -146,7 +148,7 @@ class Index:
 			else:
 				self.documents.append(occurence[0])
 
-		return 'We found '+str(self.documents.__len__())+' documents\n'
+		return self.documents.__len__()
 	
 	def termFreq(self,idz,post):
 		total = 0
@@ -185,15 +187,20 @@ class Index:
 					temp += k + ' '
 		return(temp + '\n\n')
 		
-	def printData(self,post):
+	def printData(self,post,node):
 		for document in self.documents:
 			for title in self.titleList:
 				if (document == title[0]):
 					print title[0],'   ',title[1]
 					print 'Found ' + str(self.termFreq(title[0],post)) + ' term(s) in this document.'
+					node.termFreq.append((title[0],self.termFreq(title[0],post)));
 					print 'The position is/are ' + str(self.displayPosition(title[0],post)) + '.'
 					print self.context(title[0], post)
+		self.documents = []
 					
+	def clear (self):
+		self.documents = []
+
 	def search(self, term):
 		node=0
 		if (self.stemFlag):
@@ -202,12 +209,185 @@ class Index:
 		node = self.index.search(term) 
 		if (node != 0):
 			post = node.getPostLink()
-			print self.documentFreq(post)
-			self.printData(post)
+			#print self.documentFreq(post)
+			#self.printData(post,node)
 
-			return 'Found'
+			return node
 		else: 
-			return 'Not Found'
+			return node
+
+class docObject:
+	def __init__(self, idz, iterms):
+		self.docID = idz
+		self.terms = []
+		for term in iterms:
+			self.terms.append([term,0])
+		self.wtf = []
+		self.w = []
+		self.cosine = 0 
+		self.docVector = 0
+	
+	def addTerm(self, term):
+		self.terms.append(term)
+
+	def doSim(self, qw, qv):
+		total = 0;
+		i = 0;
+		for weight in self.w:
+			temp = weight*qw[0]
+			total = total + temp
+			i = i +1
+
+		#print total
+		#print (self.docVector * qv)
+		self.cosine = total / (self.docVector * qv)
+		#print total	
+
+
+
+	def plusOne(self, term):
+		for termz in self.terms:
+			if termz[0] == term:
+				termz[1] = termz[1] + 1
+
+	def doWTF(self):
+		for term in self.terms:
+			if (term[1] == 0):
+				self.wtf.append(0)
+			else:
+				self.wtf.append(1 + math.log10(term[1]))
+			#print math.log10(term[1])
+			#self.wtf.append(1 + math.log10(term[1]))
+	def doWeight(self,idf):
+		i = 0
+		for term in self.terms:
+			#print idf * wtf[i]
+			#print idf[i]
+			self.w.append(idf[i]*self.wtf[i])
+			i = i +1
+	def doDocVector(self):
+		total = 0;
+		for weight in self.w:
+			j = weight * weight
+			total = total+ j
+		self.docVector = math.sqrt(total)
+
+
+class docHandler:
+	def __init__(self, freq):
+		self.masterTable = []
+		self.qtf = freq
+		self.qw = []
+		self.qv = 0
+		self.finalList = []
+
+	def doQueryWeight(self):
+		for tf in self.qtf:
+			if (tf == 0):
+				self.qw.append(0)
+			else:
+				self.qw.append(1 + math.log10(tf))
+	def doQueryVector(self):
+		total =0
+		for weight in self.qw:
+			j = weight * weight
+			total = total+ j
+		self.qv = math.sqrt(total)
+
+	def addDoc(self, postLink, terms ,term):
+		for link in postLink:
+			#print link[0] 
+			if self.containDoc(link[0]) == False:
+				table = docObject(link[0],terms)
+				table.plusOne(term)
+				self.masterTable.append(table)
+			else:
+				table = self.getTable(link[0])
+				table.plusOne(term)
+
+	def containDoc(self, idz):
+		if self.masterTable.__len__() == 0:
+			return False
+		else:
+			for table in self.masterTable:
+				if (table.docID == idz):
+					return True
+			return False 
+
+	def getTable(self, idz):
+		for table in self.masterTable:
+			if (table.docID == idz):
+				return table
+
+	def calcWTF(self):
+		for table in self.masterTable:
+			table.doWTF()
+
+	def calcWeight(self, idf):
+		for table in self.masterTable:
+			table.doWeight(idf)
+
+	def calcDVector(self):
+		for table in self.masterTable:
+			table.doDocVector()
+
+	def calcSim(self):
+		for table in self.masterTable:
+			table.doSim(self.qw, self.qv)
+
+	def sortFinal(self):
+		for table in self.masterTable:
+			#print table.cosine
+			temp = [table.cosine, table.docID]
+			self.finalList.append(temp)
+
+		self.finalList.sort(reverse=True);
+
+
+
+
+def main(argv):
+	##app = gUI(None)
+	#app.title('Query Search')
+	#app.mainloop()
+	query = [['monica',1],['california',1]]
+	queryz = []
+	freq =[]
+	for i in query:
+		freq.append(i[1])
+		queryz.append(i[0])
+
+	index = Index(False)
+	index.loadData()
+	results = []
+	df = []
+	idf = []
+	mT = docHandler(freq)
+
+	for term in query:
+		result = index.search(term[0])
+		results.append(result)
+		df.append(index.documentFreq(result.getPostLink()))
+		idfR = math.log10(3204.00/index.documentFreq(result.getPostLink()))
+		idf.append(idfR)
+		mT.addDoc(result.getPostLink(), queryz, term[0])
+		index.clear()
+
+	mT.calcWTF()
+	mT.calcWeight(idf)
+	mT.calcDVector()
+	mT.doQueryWeight()
+	mT.doQueryVector()
+	mT.calcSim()
+	mT.sortFinal()
+
+	test = mT.getTable(1164)
+	#test = mT.getTable(3036)
+
+	
+	
+	print mT.finalList
+
 
 class gUI(Tkinter.Tk):
 	def __init__(self,parent):
@@ -216,26 +396,22 @@ class gUI(Tkinter.Tk):
 		self.initialize()
 		
 	def initialize(self):
-		self.stem = 0
-		self.common = 0
+		self.stem = False
+		self.common = False
 		result = tkMessageBox.askquestion("Query Search", "Stemmed?")
 		if result == 'yes':
-			self.stem = 1
+			self.stem = True
 		result = tkMessageBox.askquestion("Query Search", "With Common Words?")	
 		if result == 'yes':
-			self.common = 1
-
-		#time.sleep(10)
-		del result
-
-		if (self.stem == 0 and self.common == 0):
-			os.system("python invert.py -i CACM/cacm.all -s")
-		elif (self.stem == 1 and self.common == 1):
-			os.system("python invert.py -i CACM/cacm.all -c")		
-		elif (self.stem == 0 and self.common == 1):
-			os.system("python invert.py -i CACM/cacm.all -sc")		
-		else:
-			os.system("python invert.py -i CACM/cacm.all")			
+			self.common = True
+		# if (self.stem == False and self.common == False):
+			# os.system("py invert.py -i CACM/cacm.all -s")
+		# elif (self.stem == True and self.common == True):
+			# os.system("py invert.py -i CACM/cacm.all -c")		
+		# elif (self.stem == False and self.common == True):
+			# os.system("py invert.py -i CACM/cacm.all -sc")		
+		# else:
+			# os.system("py invert.py -i CACM/cacm.all")			
 		
 		self.grid()
 		self.entryVariable = Tkinter.StringVar()
@@ -258,22 +434,24 @@ class gUI(Tkinter.Tk):
 		self.geometry("800x800")
 		self.entry.focus_set()
 		self.entry.selection_range(0, Tkinter.END)
-		
+	
 	def OnButtonClick(self):
+		self.queryArray = []
+		temp = ""
+		for char in self.entryVariable.get():
+			if char.isalnum():
+				temp += char.lower()
+				print temp
+			else:
+				self.queryArray.append(temp)
+				temp = ""
+		if temp != "":
+			self.queryArray.append(temp)
+		print self.queryArray
 		self.labelVariable.set( self.entryVariable.get())   ##### this has to be changed so that it sets result as the label variable  #####
 		self.entry.focus_set()
 		self.entry.selection_range(0, Tkinter.END)
 
-
-def main(argv):
-	##app = gUI(None)
-	#app.title('Query Search')
-	#app.mainloop()
-
-	index = Index(True)
-	index.loadData()
-
-	#print index.search('emulation')
 
 
 
