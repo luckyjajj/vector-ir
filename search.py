@@ -12,7 +12,7 @@ class Node:
 	"""
 		Node for Tree data structure
 	"""
-	def __init__(self, word, level, postLink):
+	def __init__(self, word, level, postLink=[]):
 		self.link = []
 		if (level < word.__len__()):
 			self.char = word[level]
@@ -88,7 +88,6 @@ class Tree:
 			temp = word[0]
 		except IndexError:
 			temp = ' '
-
 		for node in subtree:
 			if (node.getWord() == oword):
 				return node
@@ -119,6 +118,7 @@ class Index:
 		self.titleAbstract = None
 		self.titleList = None
 		self.titleAbstract = None
+		self.author = None
 		self.stemFlag = stemFlag
 		self.documents = []
 
@@ -133,6 +133,8 @@ class Index:
 		self.titleList = pickle.load(file3)
 		file4 = open("titleAbstract.pk", "rb")
 		self.titleAbstract = pickle.load(file4)
+		file5 = open("author.pk", "rb")
+		self.author = pickle.load(file5)
 
 	def buidTree(self):
 		self.index = Tree()
@@ -207,6 +209,7 @@ class Index:
 			p = porterAlgo.PorterStemmer()
 			term = p.stem(term.lower(),0, term.__len__()-1)
 		node = self.index.search(term) 
+		#print node
 		if (node != 0):
 			post = node.getPostLink()
 			#print self.documentFreq(post)
@@ -262,6 +265,7 @@ class docObject:
 		i = 0
 		for term in self.terms:
 			#print idf * wtf[i]
+			#print term
 			#print idf[i]
 			self.w.append(idf[i]*self.wtf[i])
 			i = i +1
@@ -296,7 +300,6 @@ class docHandler:
 
 	def addDoc(self, postLink, terms ,term):
 		for link in postLink:
-			#print link[0] 
 			if self.containDoc(link[0]) == False:
 				table = docObject(link[0],terms)
 				table.plusOne(term)
@@ -347,46 +350,11 @@ class docHandler:
 
 
 def main(argv):
-	##app = gUI(None)
-	#app.title('Query Search')
-	#app.mainloop()
-	query = [['monica',1],['california',1]]
-	queryz = []
-	freq =[]
-	for i in query:
-		freq.append(i[1])
-		queryz.append(i[0])
-
-	index = Index(False)
-	index.loadData()
-	results = []
-	df = []
-	idf = []
-	mT = docHandler(freq)
-
-	for term in query:
-		result = index.search(term[0])
-		results.append(result)
-		df.append(index.documentFreq(result.getPostLink()))
-		idfR = math.log10(3204.00/index.documentFreq(result.getPostLink()))
-		idf.append(idfR)
-		mT.addDoc(result.getPostLink(), queryz, term[0])
-		index.clear()
-
-	mT.calcWTF()
-	mT.calcWeight(idf)
-	mT.calcDVector()
-	mT.doQueryWeight()
-	mT.doQueryVector()
-	mT.calcSim()
-	mT.sortFinal()
-
-	test = mT.getTable(1164)
-	#test = mT.getTable(3036)
-
+	app = gUI(None)
+	app.title('Query Search')
+	app.commonWords()
+	app.mainloop()
 	
-	
-	print mT.finalList
 
 
 class gUI(Tkinter.Tk):
@@ -398,10 +366,11 @@ class gUI(Tkinter.Tk):
 	def initialize(self):
 		self.stem = False
 		self.common = False
+		self.cWords = []
 		result = tkMessageBox.askquestion("Query Search", "Stemmed?")
 		if result == 'yes':
 			self.stem = True
-		result = tkMessageBox.askquestion("Query Search", "With Common Words?")	
+		result = tkMessageBox.askquestion("Query Search", "Common words?")	
 		if result == 'yes':
 			self.common = True
 		# if (self.stem == False and self.common == False):
@@ -422,10 +391,14 @@ class gUI(Tkinter.Tk):
 		button = Tkinter.Button(self,text="Search!", command=self.OnButtonClick)
 		button.grid(column=1,row=0)
 		
-		self.labelVariable = Tkinter.StringVar()
-		label = Tkinter.Label(self,textvariable=self.labelVariable, anchor="w")
-		label.grid(column=0,row=1,columnspan=2,sticky='EW')
-		self.labelVariable.set("RESULT!!!!!")	
+		self.listBox = Tkinter.Listbox(width = 100, height = 40)
+
+		self.listBox.grid(column=0, row=1, columnspan=3, sticky='EW')
+		
+		# self.labelVariable = Tkinter.StringVar()
+		# label = Tkinter.Label(self,textvariable=self.labelVariable, anchor="w")
+		# label.grid(column=0,row=1,columnspan=2,sticky='EW')
+		# self.labelVariable.set("RESULT!!!!!")	
 		
 		self.grid_columnconfigure(0,weight=1)
 		self.resizable(True,True)
@@ -434,26 +407,101 @@ class gUI(Tkinter.Tk):
 		self.geometry("800x800")
 		self.entry.focus_set()
 		self.entry.selection_range(0, Tkinter.END)
+		
+	def commonWords(self):
+		#Read common word file and load it into a array
+		file = open('CACM/common_words', 'r')
+
+		for line in file:
+			for word in line.split():
+				self.cWords.append(word)
 	
 	def OnButtonClick(self):
+		self.listBox.delete(0,Tkinter.END)
 		self.queryArray = []
 		temp = ""
+		count = 1
 		for char in self.entryVariable.get():
 			if char.isalnum():
 				temp += char.lower()
-				print temp
 			else:
-				self.queryArray.append(temp)
-				temp = ""
+				if self.common == False:
+					for term in self.cWords:
+						if temp == term:
+							temp = ""				
+				if temp != "":
+					for term in self.queryArray:
+						if term[0] == temp:
+							term[1] += 1
+							temp = ""
+							break
+					else:
+						self.queryArray.append([temp, count])
+						temp = ""
 		if temp != "":
-			self.queryArray.append(temp)
-		print self.queryArray
-		self.labelVariable.set( self.entryVariable.get())   ##### this has to be changed so that it sets result as the label variable  #####
-		self.entry.focus_set()
-		self.entry.selection_range(0, Tkinter.END)
+			for term in self.queryArray:
+				if term[0] == temp:
+					term[1] += 1
+					temp = ""
+					break
+			else:
+				self.queryArray.append([temp, count])
+				temp = ""
+					
+		query = self.queryArray
+		queryz = []
+		freq =[]
 
+		index = Index(self.stem)
+		index.loadData()
+		df = []
+		idf = []
+		mT = docHandler(freq)
 
+		for term in query:
+			result = index.search(term[0])
+			if (result != 0):
+				freq.append(term[1])
+				queryz.append(term[0])
 
+		for term in query:
+			result = index.search(term[0])
+			#print index.search(term[0])
+			if (result != 0):
+				df.append(index.documentFreq(result.getPostLink()))
+				idfR = math.log10(3204.00/index.documentFreq(result.getPostLink()))
+				idf.append(idfR)
+				mT.addDoc(result.getPostLink(), queryz, term[0])
+				index.clear()
+			else:
+				pass
+			
+		mT.calcWTF()
+		mT.calcWeight(idf)
+		mT.calcDVector()
+		mT.doQueryWeight()
+		mT.doQueryVector()
+		mT.calcSim()
+		mT.sortFinal()
+		
+
+		tableCounter = 0
+		for term in mT.finalList:
+			tableCounter += 1
+			if tableCounter == 10:
+				break
+
+			for title in index.titleList:
+				if title[0] == term[1]:
+					self.listBox.insert(Tkinter.END, str(tableCounter))	
+					self.listBox.insert(Tkinter.END, str(term[1]))	
+					self.listBox.insert(Tkinter.END, title[1])	
+			
+			for author in index.author:
+				if author[0] == term[1]:
+					self.listBox.insert(Tkinter.END, author[1])
+			self.listBox.insert(Tkinter.END, term[0])	
+			self.listBox.insert(Tkinter.END, "")
 
 if __name__ == '__main__':
 	main(sys.argv[1:])

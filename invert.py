@@ -15,6 +15,7 @@ class FileParser:
 		self.commonFlag = commonWords
 		self.stopFlag = stopWord
 		self.titleAbstract = []
+		self.author = []
 
 	def parseFile(self):
 		p = porterAlgo.PorterStemmer()
@@ -98,6 +99,21 @@ class FileParser:
 								else:
 									temp = [goodWord, [(indexNum, self.count)]]
 									self.grandList.append(temp)
+													
+				
+				#For .T (Title)
+				if word == '.A':
+					self.authorTemp = ''
+					for line in file:
+						for word in line.split():
+							if word == '.N' or word == '.K' or word == '.C':
+								break
+							self.authorTemp += word + ' '
+
+						if word == '.N' or word == '.K' or word == '.C':
+							self.author.append((indexNum, self.authorTemp.strip()))
+							break	
+
 
 	def commonWords(self):
 		#Read common word file and load it into a array
@@ -113,6 +129,9 @@ class FileParser:
 		return self.titleList
 	def getTitleAbstract(self):
 		return self.titleAbstract
+	def getAuthorAbstract(self):
+		#print self.author
+		return self.author
 
 class Node:
 	"""
@@ -265,6 +284,10 @@ class Index:
 			
 	def saveAbstractFile(self,data):
 		with open('titleAbstract.pk', 'wb') as output:
+			pickle.dump(data, output, pickle.HIGHEST_PROTOCOL)	
+			
+	def saveAuthorTemp(self,data):
+		with open('author.pk', 'wb') as output:
 			pickle.dump(data, output, pickle.HIGHEST_PROTOCOL)
 
 
@@ -305,6 +328,7 @@ def main(argv):
 	index.savePostfile()
 	index.saveTitleFile(x.getTitleList())
 	index.saveAbstractFile(x.getTitleAbstract())
+	index.saveAuthorTemp(x.getAuthorAbstract())
 
 if __name__ == '__main__':
 	main(sys.argv[1:])
